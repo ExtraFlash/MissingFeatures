@@ -1,0 +1,25 @@
+{
+  "datasets": [
+    {
+      "name": "iris",
+      "relative_path": "/Iris/iris.data",
+      "label_position": "end",
+      "has_header": false,
+      "has_id": false
+    },
+    {
+      "name": "wine",
+      "relative_path": "/Wine//wine.data",
+      "label_position": "start",
+      "has_header": false,
+      "has_id": false
+    },
+    {
+      "name": "darwin",
+      "relative_path": "/DARWIN//data.csv",
+      "label_position": "end",
+      "has_header": true,
+      "has_id": true
+    }
+  ]
+}
