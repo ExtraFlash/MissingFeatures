@@ -5,21 +5,21 @@ from xgboost import XGBClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 
-MODELS = ["RandomForest", "AdaBoost", "LGBM", "XGB", "SVM", "LogisticRegression"]
+MODELS = ["RandomForest", "AdaBoost", "LGBM", "XGB", "LogisticRegression"]
 
 
 def get_model(model_name: str):
     model = None
     if model_name == "RandomForest":
-        model = RandomForestClassifier()
+        model = RandomForestClassifier(max_depth=6)
     elif model_name == "AdaBoost":
         model = AdaBoostClassifier()
     elif model_name == "LGBM":
-        model = LGBMClassifier()
+        model = LGBMClassifier(max_depth=6)
     elif model_name == "XGB":
-        model = XGBClassifier()
-    elif model_name == "SVM":
-        model = SVC()
+        model = XGBClassifier()  # automatically with 6
+    # elif model_name == "SVM":
+    #     model = SVC()
     elif model_name == "LogisticRegression":
         model = LogisticRegression()
     return model

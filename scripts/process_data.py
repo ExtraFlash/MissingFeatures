@@ -9,10 +9,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def process_data(dataset_name: str, relative_path: str, label_position: int, has_header: bool, has_id: str):
+def process_data(dataset_name: str, relative_path: str, label_position: int, has_header: bool, has_id: str,
+                 positive: str, negative: str):
     # Load data
     datasets_path = "../datasets"
-    path = datasets_path + relative_path
+    path = datasets_path + '/' + relative_path
     if not has_header:
         data = pd.read_csv(path, header=None)
     else:
@@ -32,18 +33,18 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
         cols = cols[1:] + [cols[0]]
         data = data[cols]
 
-    # Standardize data
-    standard_scaler = StandardScaler()
-    data.iloc[:, :-1] = standard_scaler.fit_transform(data.iloc[:, :-1])
-
-
     # Replace categories with numbers for the label
-    categories = data.iloc[:, -1].unique()
-    data.iloc[:, -1].replace(categories, range(len(categories)), inplace=True)
+    if positive:  # if there is a positive and negative strings, replace them with 1 and 0
+        # categories = data.iloc[:, -1].unique()
+        data.iloc[:, -1].replace([positive, negative], [1, 0], inplace=True)
 
     # Split data into train, validation and test sets
     train, test = train_test_split(data, test_size=0.2, random_state=42)
-    train, val = train_test_split(train, test_size=0.2, random_state=42)
+    # train, val = train_test_split(train, test_size=0.2, random_state=42)
+
+    # Standardize data
+    # standard_scaler = StandardScaler()
+    # data.iloc[:, :-1] = standard_scaler.fit_transform(data.iloc[:, :-1])
 
     # Create directories
     data_path = "../data"
@@ -51,14 +52,14 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
         os.makedirs(f"{data_path}/{dataset_name}")
     if not os.path.exists(f"{data_path}/{dataset_name}/train"):
         os.makedirs(f"{data_path}/{dataset_name}/train")
-    if not os.path.exists(f"{data_path}/{dataset_name}/val"):
-        os.makedirs(f"{data_path}/{dataset_name}/val")
+    # if not os.path.exists(f"{data_path}/{dataset_name}/val"):
+    #     os.makedirs(f"{data_path}/{dataset_name}/val")
     if not os.path.exists(f"{data_path}/{dataset_name}/test"):
         os.makedirs(f"{data_path}/{dataset_name}/test")
 
     # Save data
     train.to_csv(f"{data_path}/{dataset_name}/train/data.csv", index=False)
-    val.to_csv(f"{data_path}/{dataset_name}/val/data.csv", index=False)
+    # val.to_csv(f"{data_path}/{dataset_name}/val/data.csv", index=False)
     test.to_csv(f"{data_path}/{dataset_name}/test/data.csv", index=False)
 
 
@@ -75,7 +76,9 @@ def load_datasets_from_config(config_path):
         label_position = dataset['label_position']
         has_header = dataset['has_header']
         has_id = dataset['has_id']
-        process_data(dataset_name, relative_path, label_position, has_header, has_id)
+        positive = dataset.get('positive', None)
+        negative = dataset.get('negative', None)
+        process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative)
 
 
 if __name__ == "__main__":
