@@ -10,14 +10,18 @@ from sklearn.preprocessing import StandardScaler
 
 
 def process_data(dataset_name: str, relative_path: str, label_position: int, has_header: bool, has_id: str,
-                 positive: str, negative: str):
+                 positive: str, negative: str, sep):
     # Load data
     datasets_path = "../datasets"
+
+    # Define a custom delimiter regex
+    delimiter_pattern = '\s+' if sep is not None else ','
+
     path = datasets_path + '/' + relative_path
     if not has_header:
-        data = pd.read_csv(path, header=None)
+        data = pd.read_csv(path, header=None, sep=delimiter_pattern)
     else:
-        data = pd.read_csv(path)
+        data = pd.read_csv(path, sep=delimiter_pattern)
 
     # Remove id column
     if has_id:
@@ -78,7 +82,8 @@ def load_datasets_from_config(config_path):
         has_id = dataset['has_id']
         positive = dataset.get('positive', None)
         negative = dataset.get('negative', None)
-        process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative)
+        sep = dataset.get('sep', None)
+        process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative, sep)
 
 
 if __name__ == "__main__":

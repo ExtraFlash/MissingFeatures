@@ -93,5 +93,5 @@ if __name__ == '__main__':
                       metric_title=metrics_titles[i],
                       plot_row_index=row,
                       plot_col_index=col)
-        axs[1, 2].set_visible(False)
+        # axs[1, 2].set_visible(False)
         plt.savefig(f"{metric_}.png", bbox_inches='tight')

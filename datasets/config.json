@@ -48,6 +48,18 @@
       "has_header": true,
       "has_id": false,
       "is_multy_class":  false
+    },
+    {
+      "name": "Statlog (German Credit Data)",
+      "plot_name": "Statlog (German Credit Data)",
+      "relative_path": "Statlog (German Credit Data)/german.data-numeric",
+      "label_position": "end",
+      "has_header": false,
+      "has_id": false,
+      "is_multy_class":  false,
+      "positive": 1,
+      "negative": 2,
+      "sep": "spaces"
     }
   ]
 }
