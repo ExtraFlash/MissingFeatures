@@ -1,0 +1,17 @@
+Tokyo (from OpenML)
+https://www.openml.org/search?type=data&status=active&id=40705
+
+Connectionist Bench
+https://archive.ics.uci.edu/dataset/151/connectionist+bench+sonar+mines+vs+rocks
+
+Ionosphere
+https://archive.ics.uci.edu/dataset/52/ionosphere
+
+Pima Indians Diabetes Database (from Kaggle)
+https://www.kaggle.com/datasets/uciml/pima-indians-diabetes-database
+
+Heart Disease (from kaggle)
+https://www.kaggle.com/datasets/mexwell/heart-disease-dataset/data
+
+Statlog (German Credit Data)
+https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data
