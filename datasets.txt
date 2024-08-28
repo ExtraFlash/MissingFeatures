@@ -15,3 +15,10 @@ https://www.kaggle.com/datasets/mexwell/heart-disease-dataset/data
 
 Statlog (German Credit Data)
 https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data
+
+
+To demonstrate the problem of missing features and its possible solutions, we will run classical ML algorithms on different datasets and compare their performance with missing features. We will use the following algorithms: Random Forest \cite{Random_Forest}, Adaptive Boosting (AdaBoost) \cite{AdaBoost}, LightGBM (LGBM) \cite{LGBM}, Extreme Gradient Boosting (XGB) \cite{XGBOOST}, and Logistic Regression \cite{LogisticRegression}. For each dataset, we will perform a random split, allocating $80\%$ of the data to a training set and the remaining $20\%$ to a test set. Subsequently, we will conduct cross-validation with $5$ folds on the training set. In each fold, we will randomly select $80\%$ of the training set for training and the remaining $20\%$ for validation.
+
+For each split in the cross-validation, we will standardize the training set and apply the same scaler to the validation set. Each ML model will be trained on the training set. For each number of features $K$, ranging from $1$ to the total number of features in the dataset, we will randomly remove $K$ features from the validation set $10$ times by replacing the feature values with $0$. We will calculate the AUC score of the model on the validation set for each removal, compute the mean AUC score for each $K$, and record the mean AUC score for each cross-validation split.
+
+Finally, we will calculate the mean AUC score and the standard error for each model and dataset across the cross-validation splits (Fig. \ref{fig:auc_results}).

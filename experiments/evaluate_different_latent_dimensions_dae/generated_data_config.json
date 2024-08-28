@@ -1,0 +1,12 @@
+{
+  "n_samples": 1000,
+  "n_features": 65,
+  "n_rank": 3,
+  "positive_label_ratio": 0.5,
+  "n_categorical": 62,
+  "latent_dimensions": [
+    3,
+    10,
+    50
+  ]
+}
