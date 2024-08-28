@@ -1,0 +1,6 @@
+{
+  "n_samples": 1000,
+  "n_features": 65,
+  "n_rank": 10,
+  "n_categorical": 62
+}

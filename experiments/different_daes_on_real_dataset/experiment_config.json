@@ -1,0 +1,6 @@
+{
+  "dataset_name": "Statlog (German Credit Data)",
+  "latent_dimensions": [
+    3, 5, 10, 20, 30, 50
+  ]
+}

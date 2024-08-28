@@ -33,4 +33,13 @@ from sklearn.linear_model import LogisticRegression
 # print(type(y_pred))
 # print(y_pred.shape)
 
+import torch
+
+x = torch.tensor([[1,2,3], [4,5,6], [7,8,9], [10,11,12]])
+mask = torch.tensor([1,0,1])
+print(f"x: {x}")
+print(f"x shape: {x.shape}")
+print(f"mask: {mask}")
+print(f"mask shape: {mask.shape}")
+print(f"x * mask: {x * mask}")
 

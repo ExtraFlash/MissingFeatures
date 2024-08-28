@@ -19,7 +19,9 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import learning_curve
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 
 
 # def plot_learning_curve(dataset_name, model_name, estimator, title, X, y, ylim=None, cv=None,
@@ -56,19 +58,48 @@ from sklearn.preprocessing import StandardScaler
 def save_results_for_dataset(dataset_name: str, is_multy_class: bool):
     # Load data
     data_path = "../../data"
-    train = pd.read_csv(f"{data_path}/{dataset_name}/train/data.csv")
+    train_set = pd.read_csv(f"{data_path}/{dataset_name}/train/data.csv")
     # val = pd.read_csv(f"{data_path}/{dataset_name}/val/data.csv")
     # test = pd.read_csv(f"{data_path}/{dataset_name}/test/data.csv")
 
     cvs = 5
 
-    for cv in range(5):
+    for cv in range(cvs):
         # Split to train and val
-        train, val = train_test_split(train, test_size=0.2)
+        train, val = train_test_split(train_set, test_size=0.2)
         # Scale train and val
-        standard_scaler = StandardScaler()
-        train.iloc[:, :-1] = standard_scaler.fit_transform(train.iloc[:, :-1])
-        val.iloc[:, :-1] = standard_scaler.transform(val.iloc[:, :-1])
+        # TODO: perform scaling only on non one-hot encoded features
+        non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
+        categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
+
+
+        real_positive_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2 and (train[col] > 0).all()]
+        real_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2 and not (train[col] > 0).all()]
+
+        target_column = [train.columns[-1]]
+        original_columns = train.columns
+
+        scaler_pipeline = ColumnTransformer([
+            ('minmax_scaler', MinMaxScaler(), real_positive_columns),
+            ('standard_scaler', StandardScaler(), real_columns)
+        ], remainder='passthrough')
+
+        train = pd.DataFrame(scaler_pipeline.fit_transform(train), columns=non_categorical_columns + categorical_columns + target_column)
+        # keep the order of columns
+        train = train[original_columns]
+
+        val = pd.DataFrame(scaler_pipeline.transform(val), columns=non_categorical_columns + categorical_columns + target_column)
+        # keep the order of columns
+        val = val[original_columns]
+
+        # train.iloc[:, :-1] = scaler_pipeline.fit_transform(train.iloc[:, :-1])
+        # val.iloc[:, :-1] = scaler_pipeline.transform(val.iloc[:, :-1])
+
+
+        # train.iloc[:, :-1] = standard_scaler.fit_transform(train.iloc[:, :-1])
+        # val.iloc[:, :-1] = standard_scaler.transform(val.iloc[:, :-1])
+
+
         # Split features and labels
         X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
         X_val, y_val = val.iloc[:, :-1], val.iloc[:, -1]
@@ -82,7 +113,7 @@ def save_results_for_dataset(dataset_name: str, is_multy_class: bool):
         models_names = ModelFactory.MODELS
         # for each model get list of scores
         for model_name in models_names:
-            auc_results, accuracy_results = get_model_results(model_name, X_train, y_train, X_val, y_val,
+            auc_results, accuracy_results = get_model_results(model_name, dataset_name, X_train, y_train, X_val, y_val,
                                                               is_multy_class)
             results['auc'][model_name] = auc_results
             results['accuracy'][model_name] = accuracy_results
@@ -115,15 +146,20 @@ def save_results_for_dataset(dataset_name: str, is_multy_class: bool):
             metric_df.to_csv(f"{dataset_name}/cv_{cv}/{metric}.csv", index=False)
 
 
-def get_model_results(model_name: str, X_train, y_train, X_val, y_val, is_multy_class):
+def get_model_results(model_name: str, dataset_name: str, X_train, y_train, X_val, y_val, is_multy_class):
     # print(f'X_train: {X_train.shape}')
     # print(f'y_train: {y_train.shape}')
     # print(f'X_val: {X_val.shape}')
     # print(f'y_val: {y_val.shape}')
     # get the model instance
-    model = ModelFactory.get_model(model_name)
-    # train the model
-    model.fit(X_train, y_train)
+
+    checkpoint_dir = f"../../optimized_models/{dataset_name}/{model_name}"
+
+    input_size = X_train.shape[1]
+    model, loaded = ModelFactory.get_model(model_name, input_size, checkpoint_dir=checkpoint_dir, dataset_name=dataset_name, types_list=types_list)
+    # train the model if not loaded
+    if not loaded:
+        model.fit(X_train, y_train)
 
     # get list of features
     features = list(X_train.columns.values)
@@ -157,8 +193,18 @@ def get_model_results(model_name: str, X_train, y_train, X_val, y_val, is_multy_
             X_val_missing.loc[:, features_to_remove] = 0.0
             # print(f'val missing shape: {X_val_missing.shape}')
 
-            y_val_predicted = model.predict(X_val_missing)
-            y_val_probs = model.predict_proba(X_val_missing)
+            # get predictions, if DAE model, need to get also the mask vector of missing features
+            if not ModelFactory.is_masked_model(model_name):
+                y_val_predicted = model.predict(X_val_missing)
+                y_val_probs = model.predict_proba(X_val_missing)
+            else:
+                # remaining features is 1 if the feature is not removed, 0 otherwise
+                remaining_features = [1 if feature not in features_to_remove else 0 for feature in features]
+
+                # print("-" * 20)
+                mask_vector = np.array(remaining_features)
+                y_val_predicted = model.predict(X_val_missing.values, mask_vector)
+                y_val_probs = model.predict_proba(X_val_missing.values, mask_vector)
 
             if not is_multy_class:
                 auc = roc_auc_score(y_val, y_val_probs[:, 1])
@@ -191,5 +237,9 @@ if __name__ == "__main__":
         has_header_ = dataset['has_header']
         has_id_ = dataset['has_id']
         is_multy_class_ = dataset['is_multy_class']
+        types_list = dataset['types_list']
+
+        # if dataset_name_ != "Heart Disease":
+        #     continue
 
         save_results_for_dataset(dataset_name_, is_multy_class_)
