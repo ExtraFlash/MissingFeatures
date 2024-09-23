@@ -203,7 +203,7 @@ def optimize_model_for_dataset(dataset_name: str):
     dae.fit(X_train, y_train, X_val, y_val)
 
     # Save the model
-    dae.save_checkpoint(f"{dataset_name}/{model_name}")
+    dae.save_checkpoint(f"{dataset_name}/{model_name}/{model_name}.ckpt")
 
 
 if __name__ == "__main__":

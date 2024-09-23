@@ -198,6 +198,8 @@ class DynamicTypeDAELightning(pl.LightningModule):
             auc = self.auroc(p, y)
             self.log(f"{stage}_auc", auc, prog_bar=True, on_step=False, on_epoch=True)
 
+        return loss
+
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -228,14 +230,23 @@ class DynamicTypeDAELightning(pl.LightningModule):
         for tup in self.types_list:
             if tup[0] == 'binary':
                 # print(f"tup[1]: {tup[1]}")
+                # print('constructed')
                 # print(constructed[:, tup[1]])
                 # print(f'shape: {constructed[:, tup[1]].shape}')
+                # print('_______________')
+                # print('x')
                 # print(x[:, tup[1]])
                 # print(f'shape: {x[:, tup[1]].shape}')
-                combined_loss = combined_loss + self.bce_criterion(
-                    constructed[:, tup[1]],
-                    x[:, tup[1]]
-                )
+                try:
+                    combined_loss = combined_loss + self.bce_criterion(
+                        constructed[:, tup[1]],
+                        x[:, tup[1]]
+                    )
+                except ConnectionAbortedError as e:
+                    print(f"Error: {e}")
+                    # check if constructed has values bigger than 1
+                    print(f"constructed: {constructed[:, tup[1]]}")
+
 
             elif tup[0] == 'categorical':  # cross entropy loss takes the logits, therefore we do not perform softmax, only in the predict method
                 combined_loss = combined_loss + self.ce_criterion(
