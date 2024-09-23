@@ -88,7 +88,7 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
         ('one_hot', OneHotEncoder(), categorical_columns)
     ], remainder='passthrough')
 
-    data_before = data.copy()
+    # data_before = data.copy()
 
     # notice order of columns change (categorical columns first)
     data = pd.DataFrame(one_hot_pipeline.fit_transform(data))
@@ -96,11 +96,10 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
     # real-positive features
     for i, col in enumerate(data.columns[:-1]):
         if data[col].nunique() > 2 and (data[col] > 0).all():
-            # get min value
-            min_val = data[col].min()
-            # get max value
-            max_val = data[col].max()
-            types_list.append(('real_positive', i, 0, min_val, max_val))
+            types_list.append(('real_positive', i, 0))
+    # for i, col in enumerate(data.columns[idx:-1]):
+    #     types_list.append(('real_positive', i + idx, 0))
+
 
     # Split data into train, validation and test sets
     train, test = train_test_split(data, test_size=0.2, random_state=42)
@@ -148,6 +147,7 @@ def load_datasets_from_config(config_path):
     datasets: list = config['datasets']
     # process each dataset
     for dataset in datasets:
+
         dataset_name = dataset['name']
         relative_path = dataset['relative_path']
         label_position = dataset['label_position']
@@ -156,6 +156,8 @@ def load_datasets_from_config(config_path):
         positive = dataset.get('positive', None)
         negative = dataset.get('negative', None)
         sep = dataset.get('sep', None)
+        if dataset_name != "Heart Disease":
+            continue
         process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative, sep)
 
 

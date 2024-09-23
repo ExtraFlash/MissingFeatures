@@ -104,7 +104,7 @@ def objective(trial, X_train, y_train, X_val, y_val, dataset_name):
     n_epochs = trial.suggest_int('n_epochs', 200, 1500)
 
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_Dynamic_TYPE_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
         types_list=types_list,
         latent_dim=latent_dim,
@@ -171,8 +171,9 @@ def optimize_model_for_dataset(dataset_name: str):
 
     # Run the model with the best hyperparameters
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
+        types_list=types_list,
         latent_dim=_best_params['latent_dim'],
         encoder_units=best_encoder_units,
         decoder_units=best_decoder_units,
@@ -211,7 +212,7 @@ if __name__ == "__main__":
     with open(config_path) as f:
         config = json.load(f)
 
-    model_name = ModelFactory.DAE_NAME
+    model_name = ModelFactory.DAE_Dynamic_TYPE_NAME
 
     # get datasets from config
     datasets: list = config['datasets']
@@ -224,5 +225,8 @@ if __name__ == "__main__":
         has_id_ = dataset['has_id']
         is_multy_class_ = dataset['is_multy_class']
         types_list = dataset['types_list']
+
+        # if dataset_name_ != "Heart Disease":
+        #     continue
 
         optimize_model_for_dataset(dataset_name_)

@@ -96,7 +96,7 @@ def objective(trial, X_train, y_train, X_val, y_val, dataset_name):
     n_epochs = trial.suggest_int('n_epochs', 200, 1500)
 
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
         latent_dim=latent_dim,
         encoder_units=encoder_units,
@@ -162,7 +162,7 @@ def optimize_model_for_dataset(dataset_name: str):
 
     # Run the model with the best hyperparameters
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
         latent_dim=_best_params['latent_dim'],
         encoder_units=best_encoder_units,
