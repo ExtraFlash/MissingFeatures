@@ -25,7 +25,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import learning_curve
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 
@@ -33,15 +33,34 @@ from models import ActivationFactory
 
 BATCH_SIZE = 64
 
+dims = {
+    'Tokyo': 15,
+    'Connectionist Bench': 15,
+    'Ionosphere': 35,
+    'Pima Indians Diabetes Database': 20,
+    'Heart Disease': 22,
+    'Statlog (German Credit Data)': 30,
+}
 
-def objective(trial, X_train, y_train, X_val, y_val):
+
+def objective(trial, X_train, y_train, X_val, y_val, dataset_name):
     # Determine the columns for preprocessing
+    # non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
+    # categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
+    # original_columns = X_train.columns
+
+    # TODO: perform scaling only on non one-hot encoded features
     non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
     categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
+
+    real_positive_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and (X_train[col] > 0).all()]
+    real_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and not (X_train[col] > 0).all()]
+
     original_columns = X_train.columns
 
     scaler_pipeline = ColumnTransformer([
-        ('scaler', StandardScaler(), non_categorical_columns)
+        ('minmax_scaler', MinMaxScaler(), real_positive_columns),
+        ('standard_scaler', StandardScaler(), real_columns)
     ], remainder='passthrough')
 
     X_train = pd.DataFrame(scaler_pipeline.fit_transform(X_train),
@@ -51,11 +70,10 @@ def objective(trial, X_train, y_train, X_val, y_val):
 
     X_val = pd.DataFrame(scaler_pipeline.transform(X_val),
                          columns=non_categorical_columns + categorical_columns)
-    # keep the order of columns
-    X_val = X_val[original_columns]
 
     # Hyperparameters to optimize
     latent_dim = trial.suggest_int('latent_dim', 10, 50)
+    # latent_dim = dims[dataset_name]
 
     encoder_units = []
     previous_size = 256
@@ -76,21 +94,20 @@ def objective(trial, X_train, y_train, X_val, y_val):
     encoder_units = tuple(encoder_units)
     decoder_units = tuple(decoder_units)
 
-    activation_name = trial.suggest_categorical('activation_name',
-                                                [ActivationFactory.relu_NAME, ActivationFactory.leaky_relu_NAME,
-                                                 ActivationFactory.tanh_NAME])
+    # activation_name = trial.suggest_categorical('activation_name',
+    #                                             [ActivationFactory.relu_NAME, ActivationFactory.leaky_relu_NAME,
+    #                                              ActivationFactory.tanh_NAME])
+    activation_name = ActivationFactory.leaky_relu_NAME
     dropout_rate = trial.suggest_float('dropout_rate', 0.0, 0.5)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
     batch_size = BATCH_SIZE
     n_epochs = trial.suggest_int('n_epochs', 200, 1500)
 
-    categorical_size = len(categorical_columns)
-
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_CATEGORICAL_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
+        types_list=types_list,
         latent_dim=latent_dim,
-        categorical_size=categorical_size,
         encoder_units=encoder_units,
         decoder_units=decoder_units,
         activation_name=activation_name,
@@ -98,12 +115,15 @@ def objective(trial, X_train, y_train, X_val, y_val):
         learning_rate=learning_rate
     )
 
-    dae.fit(X_train, y_train, n_epochs=n_epochs, batch_size=batch_size, show_progress=False)
+    dae.fit(X_train, y_train, X_val, y_val)
 
-    y_pred = dae.predict(X_val)
-    accuracy = (y_pred.flatten() == y_val).mean()
+    # y_pred = dae.predict(X_val)
+    # accuracy = (y_pred.flatten() == y_val).mean()
 
-    return accuracy
+    y_val_probs = dae.predict_proba(X_val)
+    auc = roc_auc_score(y_val, y_val_probs[:, 1])
+
+    return auc
 
 
 def optimize_model_for_dataset(dataset_name: str):
@@ -115,11 +135,11 @@ def optimize_model_for_dataset(dataset_name: str):
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
     # Create a new function with X_train and y_train pre-filled
-    objective_with_data = partial(objective, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val)
+    objective_with_data = partial(objective, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, dataset_name=dataset_name)
 
     # Run the optimization
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective_with_data, n_trials=1000)
+    study.optimize(objective_with_data, n_trials=20)
 
     _best_params = study.best_params
 
@@ -139,7 +159,6 @@ def optimize_model_for_dataset(dataset_name: str):
                                                 params=['latent_dim',
                                                         'encoder_units_0', 'encoder_units_1',
                                                         'decoder_units_0', 'decoder_units_1',
-                                                        'activation_name',
                                                         'dropout_rate', 'learning_rate',
                                                         'n_epochs'])
     fig_slice.write_image(f"{dataset_name}/{model_name}/slice_plot.png")
@@ -152,12 +171,13 @@ def optimize_model_for_dataset(dataset_name: str):
 
     # Run the model with the best hyperparameters
     dae, _ = ModelFactory.get_model(
-        model_name=ModelFactory.DAE_NAME,
+        model_name=model_name,
         input_size=X_train.shape[1],
+        types_list=types_list,
         latent_dim=_best_params['latent_dim'],
         encoder_units=best_encoder_units,
         decoder_units=best_decoder_units,
-        activation_name=_best_params['activation_name'],
+        activation_name=ActivationFactory.leaky_relu_NAME,
         dropout_rate=_best_params['dropout_rate'],
         learning_rate=_best_params['learning_rate'],
     )
@@ -180,7 +200,7 @@ def optimize_model_for_dataset(dataset_name: str):
     n_epochs = _best_params['n_epochs']
     batch_size = BATCH_SIZE
 
-    dae.fit(X_train, y_train, n_epochs=n_epochs, batch_size=batch_size)
+    dae.fit(X_train, y_train, X_val, y_val)
 
     # Save the model
     dae.save_checkpoint(f"{dataset_name}/{model_name}")
@@ -192,7 +212,7 @@ if __name__ == "__main__":
     with open(config_path) as f:
         config = json.load(f)
 
-    model_name = ModelFactory.DAE_CATEGORICAL_NAME
+    model_name = ModelFactory.DAE_Dynamic_TYPE_LIGHTNING_NAME
 
     # get datasets from config
     datasets: list = config['datasets']
@@ -204,5 +224,9 @@ if __name__ == "__main__":
         has_header_ = dataset['has_header']
         has_id_ = dataset['has_id']
         is_multy_class_ = dataset['is_multy_class']
+        types_list = dataset['types_list']
+
+        # if dataset_name_ != "Heart Disease":
+        #     continue
 
         optimize_model_for_dataset(dataset_name_)

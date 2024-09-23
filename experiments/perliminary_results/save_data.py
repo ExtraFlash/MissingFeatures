@@ -159,7 +159,10 @@ def get_model_results(model_name: str, dataset_name: str, X_train, y_train, X_va
     model, loaded = ModelFactory.get_model(model_name, input_size, checkpoint_dir=checkpoint_dir, dataset_name=dataset_name, types_list=types_list)
     # train the model if not loaded
     if not loaded:
-        model.fit(X_train, y_train)
+        if ModelFactory.is_lightning_model(model_name):
+            model.fit(X_train, y_train, X_val, y_val)
+        else:
+            model.fit(X_train, y_train)
 
     # get list of features
     features = list(X_train.columns.values)

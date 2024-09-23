@@ -35,227 +35,198 @@
                 ],
                 [
                     "real_positive",
-                    21,
                     0,
-                    0.001542,
-                    0.2673
+                    0
+                ],
+                [
+                    "real_positive",
+                    1,
+                    0
+                ],
+                [
+                    "real_positive",
+                    2,
+                    0
+                ],
+                [
+                    "real_positive",
+                    3,
+                    0
+                ],
+                [
+                    "real_positive",
+                    4,
+                    0
+                ],
+                [
+                    "real_positive",
+                    5,
+                    0
+                ],
+                [
+                    "real_positive",
+                    6,
+                    0
+                ],
+                [
+                    "real_positive",
+                    7,
+                    0
+                ],
+                [
+                    "real_positive",
+                    8,
+                    0
+                ],
+                [
+                    "real_positive",
+                    9,
+                    0
+                ],
+                [
+                    "real_positive",
+                    10,
+                    0
+                ],
+                [
+                    "real_positive",
+                    11,
+                    0
+                ],
+                [
+                    "real_positive",
+                    12,
+                    0
+                ],
+                [
+                    "real_positive",
+                    13,
+                    0
+                ],
+                [
+                    "real_positive",
+                    14,
+                    0
+                ],
+                [
+                    "real_positive",
+                    15,
+                    0
+                ],
+                [
+                    "real_positive",
+                    16,
+                    0
+                ],
+                [
+                    "real_positive",
+                    17,
+                    0
+                ],
+                [
+                    "real_positive",
+                    18,
+                    0
+                ],
+                [
+                    "real_positive",
+                    19,
+                    0
+                ],
+                [
+                    "real_positive",
+                    20,
+                    0
+                ],
+                [
+                    "real_positive",
+                    21,
+                    0
                 ],
                 [
                     "real_positive",
                     22,
-                    0,
-                    0.01069,
-                    8859.0
+                    0
                 ],
                 [
                     "real_positive",
                     23,
-                    0,
-                    0.01223,
-                    8859.0
+                    0
+                ],
+                [
+                    "real_positive",
+                    24,
+                    0
                 ],
                 [
                     "real_positive",
                     25,
-                    0,
-                    0.0015,
-                    8859.0
+                    0
                 ],
                 [
                     "real_positive",
                     26,
-                    0,
-                    0.06253,
-                    8859.0
+                    0
                 ],
                 [
                     "real_positive",
                     27,
-                    0,
-                    0.002833,
-                    0.6458
+                    0
                 ],
                 [
                     "real_positive",
                     28,
-                    0,
-                    0.01983,
-                    70870.0
+                    0
                 ],
                 [
                     "real_positive",
                     29,
-                    0,
-                    0.02083,
-                    70870.0
+                    0
+                ],
+                [
+                    "real_positive",
+                    30,
+                    0
                 ],
                 [
                     "real_positive",
                     31,
-                    0,
-                    0.0025,
-                    70820.0
+                    0
                 ],
                 [
                     "real_positive",
                     32,
-                    0,
-                    0.0852,
-                    70820.0
+                    0
                 ],
                 [
                     "real_positive",
                     33,
-                    0,
-                    3004.0,
-                    4151000.0
+                    0
                 ],
                 [
                     "real_positive",
                     34,
-                    0,
-                    5564.0,
-                    1449000.0
+                    0
                 ],
                 [
                     "real_positive",
                     35,
-                    0,
-                    18790.0,
-                    9368000.0
+                    0
                 ],
                 [
                     "real_positive",
                     36,
-                    0,
-                    17890.0,
-                    30590000.0
+                    0
+                ],
+                [
+                    "real_positive",
+                    37,
+                    0
                 ],
                 [
                     "real_positive",
                     38,
-                    0,
-                    750.9,
-                    321700.0
-                ],
-                [
-                    "real_positive",
-                    39,
-                    0,
-                    2.517,
-                    738.9
-                ],
-                [
-                    "real_positive",
-                    41,
-                    0,
-                    0.0006125,
-                    0.2233
-                ],
-                [
-                    "real_positive",
-                    42,
-                    0,
-                    0.00735,
-                    0.8362
-                ],
-                [
-                    "real_positive",
-                    44,
-                    0,
-                    0.05278,
-                    9.287
-                ],
-                [
-                    "real_positive",
-                    45,
-                    0,
-                    0.05278,
-                    15.02
-                ],
-                [
-                    "real_positive",
-                    47,
-                    0,
-                    0.6333,
-                    60.72
-                ],
-                [
-                    "real_positive",
-                    48,
-                    0,
-                    0.6333,
-                    73.02
-                ],
-                [
-                    "real_positive",
-                    49,
-                    0,
-                    7.228,
-                    928.2
-                ],
-                [
-                    "real_positive",
-                    50,
-                    0,
-                    1.867,
-                    35.08
-                ],
-                [
-                    "real_positive",
-                    51,
-                    0,
-                    9.447,
-                    931.4
-                ],
-                [
-                    "real_positive",
-                    52,
-                    0,
-                    20.02,
-                    5011.0
-                ],
-                [
-                    "real_positive",
-                    53,
-                    0,
-                    7.85,
-                    395.9
-                ],
-                [
-                    "real_positive",
-                    54,
-                    0,
-                    22.15,
-                    5012.0
-                ],
-                [
-                    "real_positive",
-                    56,
-                    0,
-                    9.217,
-                    768.7
-                ],
-                [
-                    "real_positive",
-                    57,
-                    0,
-                    0.1333,
-                    97.88
-                ],
-                [
-                    "real_positive",
-                    58,
-                    0,
-                    204.3,
-                    3201.0
-                ],
-                [
-                    "real_positive",
-                    59,
-                    0,
-                    0.1833,
-                    35.03
+                    0
                 ]
             ]
         },
@@ -273,359 +244,302 @@
                 [
                     "real_positive",
                     0,
-                    0,
-                    0.0015,
-                    0.1371
+                    0
                 ],
                 [
                     "real_positive",
                     1,
-                    0,
-                    0.0006,
-                    0.2339
+                    0
                 ],
                 [
                     "real_positive",
                     2,
-                    0,
-                    0.0015,
-                    0.3059
+                    0
                 ],
                 [
                     "real_positive",
                     3,
-                    0,
-                    0.0058,
-                    0.4264
+                    0
                 ],
                 [
                     "real_positive",
                     4,
-                    0,
-                    0.0067,
-                    0.401
+                    0
                 ],
                 [
                     "real_positive",
                     5,
-                    0,
-                    0.0102,
-                    0.3823
+                    0
                 ],
                 [
                     "real_positive",
                     6,
-                    0,
-                    0.0033,
-                    0.3729
+                    0
                 ],
                 [
                     "real_positive",
                     7,
-                    0,
-                    0.0055,
-                    0.459
+                    0
                 ],
                 [
                     "real_positive",
                     8,
-                    0,
-                    0.0075,
-                    0.6828
+                    0
                 ],
                 [
                     "real_positive",
                     9,
-                    0,
-                    0.0113,
-                    0.7106
+                    0
                 ],
                 [
                     "real_positive",
                     10,
-                    0,
-                    0.0289,
-                    0.7342
+                    0
                 ],
                 [
                     "real_positive",
                     11,
-                    0,
-                    0.0236,
-                    0.706
+                    0
                 ],
                 [
                     "real_positive",
                     12,
-                    0,
-                    0.0184,
-                    0.7131
+                    0
                 ],
                 [
                     "real_positive",
                     13,
-                    0,
-                    0.0273,
-                    0.997
+                    0
                 ],
                 [
                     "real_positive",
                     14,
-                    0,
-                    0.0031,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     15,
-                    0,
-                    0.0162,
-                    0.9988
+                    0
                 ],
                 [
                     "real_positive",
                     16,
-                    0,
-                    0.0349,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     17,
-                    0,
-                    0.0375,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     18,
-                    0,
-                    0.0494,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     19,
-                    0,
-                    0.0656,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     20,
-                    0,
-                    0.0512,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     21,
-                    0,
-                    0.0219,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     22,
-                    0,
-                    0.0563,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     23,
-                    0,
-                    0.0239,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     24,
-                    0,
-                    0.024,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     25,
-                    0,
-                    0.0921,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     26,
-                    0,
-                    0.0481,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     27,
-                    0,
-                    0.0284,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     28,
-                    0,
-                    0.0144,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     29,
-                    0,
-                    0.0613,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     30,
-                    0,
-                    0.0482,
-                    0.9657
+                    0
                 ],
                 [
                     "real_positive",
                     31,
-                    0,
-                    0.0404,
-                    0.9306
+                    0
                 ],
                 [
                     "real_positive",
                     32,
-                    0,
-                    0.0477,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     33,
-                    0,
-                    0.0212,
-                    0.9647
+                    0
                 ],
                 [
                     "real_positive",
                     34,
-                    0,
-                    0.0223,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     35,
-                    0,
-                    0.008,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     36,
-                    0,
-                    0.0351,
-                    0.9497
+                    0
                 ],
                 [
                     "real_positive",
                     37,
-                    0,
-                    0.0383,
-                    1.0
+                    0
                 ],
                 [
                     "real_positive",
                     38,
-                    0,
-                    0.0371,
-                    0.9857
+                    0
                 ],
                 [
                     "real_positive",
                     39,
-                    0,
-                    0.0117,
-                    0.9297
+                    0
                 ],
                 [
                     "real_positive",
                     40,
-                    0,
-                    0.036,
-                    0.8995
+                    0
                 ],
                 [
                     "real_positive",
                     41,
-                    0,
-                    0.0056,
-                    0.8246
+                    0
+                ],
+                [
+                    "real_positive",
+                    42,
+                    0
+                ],
+                [
+                    "real_positive",
+                    43,
+                    0
+                ],
+                [
+                    "real_positive",
+                    44,
+                    0
+                ],
+                [
+                    "real_positive",
+                    45,
+                    0
+                ],
+                [
+                    "real_positive",
+                    46,
+                    0
+                ],
+                [
+                    "real_positive",
+                    47,
+                    0
+                ],
+                [
+                    "real_positive",
+                    48,
+                    0
+                ],
+                [
+                    "real_positive",
+                    49,
+                    0
+                ],
+                [
+                    "real_positive",
+                    50,
+                    0
                 ],
                 [
                     "real_positive",
                     51,
-                    0,
-                    0.0008,
-                    0.0709
+                    0
                 ],
                 [
                     "real_positive",
                     52,
-                    0,
-                    0.0005,
-                    0.039
+                    0
                 ],
                 [
                     "real_positive",
                     53,
-                    0,
-                    0.001,
-                    0.0352
+                    0
                 ],
                 [
                     "real_positive",
                     54,
-                    0,
-                    0.0006,
-                    0.0447
+                    0
                 ],
                 [
                     "real_positive",
                     55,
-                    0,
-                    0.0004,
-                    0.0394
+                    0
                 ],
                 [
                     "real_positive",
                     56,
-                    0,
-                    0.0003,
-                    0.0355
+                    0
                 ],
                 [
                     "real_positive",
                     57,
-                    0,
-                    0.0003,
-                    0.044
+                    0
                 ],
                 [
                     "real_positive",
                     58,
-                    0,
-                    0.0001,
-                    0.0364
+                    0
                 ],
                 [
                     "real_positive",
                     59,
-                    0,
-                    0.0006,
-                    0.0439
+                    0
                 ]
             ]
         },
@@ -642,6 +556,171 @@
             "types_list": [
                 [
                     "binary",
+                    0
+                ],
+                [
+                    "real_positive",
+                    0,
+                    0
+                ],
+                [
+                    "real_positive",
+                    1,
+                    0
+                ],
+                [
+                    "real_positive",
+                    2,
+                    0
+                ],
+                [
+                    "real_positive",
+                    3,
+                    0
+                ],
+                [
+                    "real_positive",
+                    4,
+                    0
+                ],
+                [
+                    "real_positive",
+                    5,
+                    0
+                ],
+                [
+                    "real_positive",
+                    6,
+                    0
+                ],
+                [
+                    "real_positive",
+                    7,
+                    0
+                ],
+                [
+                    "real_positive",
+                    8,
+                    0
+                ],
+                [
+                    "real_positive",
+                    9,
+                    0
+                ],
+                [
+                    "real_positive",
+                    10,
+                    0
+                ],
+                [
+                    "real_positive",
+                    11,
+                    0
+                ],
+                [
+                    "real_positive",
+                    12,
+                    0
+                ],
+                [
+                    "real_positive",
+                    13,
+                    0
+                ],
+                [
+                    "real_positive",
+                    14,
+                    0
+                ],
+                [
+                    "real_positive",
+                    15,
+                    0
+                ],
+                [
+                    "real_positive",
+                    16,
+                    0
+                ],
+                [
+                    "real_positive",
+                    17,
+                    0
+                ],
+                [
+                    "real_positive",
+                    18,
+                    0
+                ],
+                [
+                    "real_positive",
+                    19,
+                    0
+                ],
+                [
+                    "real_positive",
+                    20,
+                    0
+                ],
+                [
+                    "real_positive",
+                    21,
+                    0
+                ],
+                [
+                    "real_positive",
+                    22,
+                    0
+                ],
+                [
+                    "real_positive",
+                    23,
+                    0
+                ],
+                [
+                    "real_positive",
+                    24,
+                    0
+                ],
+                [
+                    "real_positive",
+                    25,
+                    0
+                ],
+                [
+                    "real_positive",
+                    26,
+                    0
+                ],
+                [
+                    "real_positive",
+                    27,
+                    0
+                ],
+                [
+                    "real_positive",
+                    28,
+                    0
+                ],
+                [
+                    "real_positive",
+                    29,
+                    0
+                ],
+                [
+                    "real_positive",
+                    30,
+                    0
+                ],
+                [
+                    "real_positive",
+                    31,
+                    0
+                ],
+                [
+                    "real_positive",
+                    32,
                     0
                 ]
             ]
@@ -662,17 +741,38 @@
                 ],
                 [
                     "real_positive",
-                    22,
                     0,
-                    0.078,
-                    2.42
+                    0
                 ],
                 [
                     "real_positive",
-                    23,
-                    0,
-                    21.0,
-                    81.0
+                    1,
+                    0
+                ],
+                [
+                    "real_positive",
+                    2,
+                    0
+                ],
+                [
+                    "real_positive",
+                    3,
+                    0
+                ],
+                [
+                    "real_positive",
+                    4,
+                    0
+                ],
+                [
+                    "real_positive",
+                    5,
+                    0
+                ],
+                [
+                    "real_positive",
+                    6,
+                    0
                 ]
             ]
         },
@@ -715,16 +815,12 @@
                 [
                     "real_positive",
                     14,
-                    0,
-                    28.0,
-                    77.0
+                    0
                 ],
                 [
                     "real_positive",
                     17,
-                    0,
-                    60.0,
-                    202.0
+                    0
                 ]
             ]
         },
@@ -835,24 +931,18 @@
                 ],
                 [
                     "real_positive",
-                    50,
                     0,
-                    4.0,
-                    72.0
+                    0
                 ],
                 [
                     "real_positive",
-                    51,
-                    0,
-                    2.0,
-                    184.0
+                    1,
+                    0
                 ],
                 [
                     "real_positive",
-                    52,
-                    0,
-                    19.0,
-                    75.0
+                    2,
+                    0
                 ]
             ]
         }

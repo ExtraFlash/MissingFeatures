@@ -57,11 +57,13 @@ class DynamicTypeDAE:
         self.bce_criterion = nn.BCELoss()
         self.ce_criterion = nn.CrossEntropyLoss()
 
-    def fit(self, x: pd.DataFrame, y: pd.DataFrame, n_epochs=1000, batch_size=32, show_progress=True):
+    def fit(self, x: pd.DataFrame, y: pd.DataFrame, x_val: pd.DataFrame=None, y_val: pd.DataFrame=None, n_epochs=1000, batch_size=32, show_progress=True):
         """
         Train the model and in each epoch generate a bernouli mask
         :param x:
         :param y:
+        :param x_val:
+        :param y_val:
         :param n_epochs:
         :param batch_size:
         :param show_progress:
@@ -72,13 +74,23 @@ class DynamicTypeDAE:
         x = torch.from_numpy(x.to_numpy())
         y = torch.from_numpy(y.to_numpy())
 
+        if x_val is not None and y_val is not None:
+            x_val = torch.from_numpy(x_val.to_numpy())
+            y_val = torch.from_numpy(y_val.to_numpy())
+            x_val, y_val = x_val.float().to(self.device), y_val.float().unsqueeze(1).to(self.device)
+
         dataset = TensorDataset(x, y)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+        train_loss_history = []
+        val_loss_history = []
 
         # Train the model
         for epoch in range(n_epochs):
             # Generate a bernouli mask
             mask_first_epoch = self.generate_mask()
+            epoch_train_loss = 0.0
+            epoch_val_loss = 0.0
             for i, (x, y) in enumerate(dataloader):
                 # take the mask of size f, add 0 dimension (1, f), expand it to (batch_size, f) and move to device
                 mask = mask_first_epoch.unsqueeze(0).expand(x.shape[0], -1).to(self.device)
@@ -95,6 +107,17 @@ class DynamicTypeDAE:
 
                 if show_progress and epoch % 10 == 0 and i == 0:
                     print(f"Epoch: {epoch}, Iteration: {i}, Loss: {loss.item()}")
+                epoch_train_loss += loss.item()
+                if x_val is not None and y_val is not None:
+                    with torch.no_grad():
+                        mask = mask_first_epoch.unsqueeze(0).expand(x_val.shape[0], -1).to(self.device)
+                        val_loss = self.custom_loss(x_val, y_val, self.network(x_val, mask)[0], self.network(x_val, mask)[1])
+                        epoch_val_loss += val_loss.item()
+            train_loss_history.append(epoch_train_loss)
+            val_loss_history.append(epoch_val_loss)
+
+        if x_val is not None and y_val is not None:
+            return train_loss_history, val_loss_history
 
     def custom_loss(self, x: torch.Tensor, y: torch.Tensor, constructed: torch.Tensor, p: torch.Tensor) -> torch.Tensor:
         combined_loss = torch.tensor(data=0., device=self.device)
@@ -112,6 +135,7 @@ class DynamicTypeDAE:
                     constructed[:, tup[1]],
                     x[:, tup[1]]
                 )
+
             elif tup[0] == 'categorical':  # cross entropy loss takes the logits, therefore we do not perform softmax, only in the predict method
                 combined_loss = combined_loss + self.ce_criterion(
                     constructed[:, tup[1]: tup[1] + tup[2]],
