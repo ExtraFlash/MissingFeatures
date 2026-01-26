@@ -1,1 +1,0 @@
-{"latent_dim": 23, "encoder_units_0": 247, "encoder_units_1": 155, "decoder_units_0": 232, "decoder_units_1": 242, "activation_name": "ReLU", "dropout_rate": 0.15391391125505405, "learning_rate": 0.0023640433084293616, "optimizer_type": "adam", "batch_size": 35, "n_epochs": 1231}
