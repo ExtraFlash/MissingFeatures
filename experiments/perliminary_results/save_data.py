@@ -6,7 +6,7 @@ import numpy as np
 import random
 from tqdm import tqdm
 
-from models import ModelFactory
+from my_models import ModelFactory
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -22,6 +22,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
+
+from utils import utils
 
 
 # def plot_learning_curve(dataset_name, model_name, estimator, title, X, y, ylim=None, cv=None,
@@ -66,50 +68,14 @@ def save_results_for_dataset(dataset_name: str, is_multy_class: bool):
 
     for cv in range(cvs):
         # Split to train and val
-        train, val = train_test_split(train_set, test_size=0.2)
-        # Scale train and val
-        # TODO: perform scaling only on non one-hot encoded features
-        non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
-        categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
-
-
-        real_positive_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2 and (train[col] > 0).all()]
-        real_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2 and not (train[col] > 0).all()]
-
-        target_column = [train.columns[-1]]
-        original_columns = train.columns
-
-        scaler_pipeline = ColumnTransformer([
-            ('minmax_scaler', MinMaxScaler(), real_positive_columns),
-            ('standard_scaler', StandardScaler(), real_columns)
-        ], remainder='passthrough')
-
-        train = pd.DataFrame(scaler_pipeline.fit_transform(train), columns=non_categorical_columns + categorical_columns + target_column)
-        # keep the order of columns
-        train = train[original_columns]
-
-        val = pd.DataFrame(scaler_pipeline.transform(val), columns=non_categorical_columns + categorical_columns + target_column)
-        # keep the order of columns
-        val = val[original_columns]
-
-        # train.iloc[:, :-1] = scaler_pipeline.fit_transform(train.iloc[:, :-1])
-        # val.iloc[:, :-1] = scaler_pipeline.transform(val.iloc[:, :-1])
-
-
-        # train.iloc[:, :-1] = standard_scaler.fit_transform(train.iloc[:, :-1])
-        # val.iloc[:, :-1] = standard_scaler.transform(val.iloc[:, :-1])
-
-
-        # Split features and labels
-        X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
-        X_val, y_val = val.iloc[:, :-1], val.iloc[:, -1]
+        X_train, y_train, X_val, y_val = utils.preprocess_split(train_set)
 
         # 'auc': {'model1': [scores], 'model2': [scores],...}
         results = {
             'auc': {},
             'accuracy': {}
         }
-        # get all models names
+        # get all my_models names
         models_names = ModelFactory.MODELS
         # for each model get list of scores
         for model_name in models_names:
@@ -155,14 +121,37 @@ def get_model_results(model_name: str, dataset_name: str, X_train, y_train, X_va
 
     checkpoint_dir = f"../../optimized_models/{dataset_name}/{model_name}"
 
-    input_size = X_train.shape[1]
-    model, loaded = ModelFactory.get_model(model_name, input_size, checkpoint_dir=checkpoint_dir, dataset_name=dataset_name, types_list=types_list)
-    # train the model if not loaded
-    if not loaded:
-        if ModelFactory.is_lightning_model(model_name):
-            model.fit(X_train, y_train, X_val, y_val)
-        else:
-            model.fit(X_train, y_train)
+    # if ModelFactory.is_model_supports_unmasked_columns(model_name):
+    if model_name == ModelFactory.Complete_Random_Forest_NAME:
+        checkpoint_dir = checkpoint_dir.replace(ModelFactory.Complete_Random_Forest_NAME, ModelFactory.Random_Forest_NAME)
+    elif model_name == ModelFactory.Complete_Gradient_Boosting_Classifier_Name:
+        checkpoint_dir = checkpoint_dir.replace(ModelFactory.Complete_Gradient_Boosting_Classifier_Name,
+                                                ModelFactory.Gradient_Boosting_Classifier_Name)
+    elif model_name == ModelFactory.Mean_Gradient_Boosting_Classifier_Name:
+        checkpoint_dir = checkpoint_dir.replace(ModelFactory.Mean_Gradient_Boosting_Classifier_Name,
+                                                ModelFactory.Gradient_Boosting_Classifier_Name)
+    best_params_path = f"{checkpoint_dir}/best_params.json"
+    with open(best_params_path) as f:
+        best_params = json.load(f)
+    model, loaded = ModelFactory.get_model(model_name, X_train.shape[1], dataset_name=dataset_name, types_list=types_list, **best_params)
+    if ModelFactory.is_train_with_val(model_name):
+        model.fit(X_train, y_train, X_val, y_val)
+    else:
+        model.fit(X_train, y_train)
+
+    # else:
+    #     if ModelFactory.is_lightning_model(model_name):
+    #         checkpoint_dir = checkpoint_dir + f"/{model_name}.ckpt"
+    #
+    #     input_size = X_train.shape[1]
+    #     model, loaded = ModelFactory.get_model(model_name, input_size, checkpoint_dir=checkpoint_dir, dataset_name=dataset_name, types_list=types_list)
+    #     # train the model if not loaded
+    #     if not loaded:
+    #         # if ModelFactory.is_lightning_model(model_name):
+    #         #     model.fit(X_train, y_train, X_val, y_val)
+    #         # else:
+    #         # model.fit(X_train, y_train)
+    #         raise Exception(f"Model {model_name} is not loaded")
 
     # get list of features
     features = list(X_train.columns.values)
@@ -174,6 +163,7 @@ def get_model_results(model_name: str, dataset_name: str, X_train, y_train, X_va
     remaining_features_amount = len(features)
 
     while remaining_features_amount >= 1:
+        print(f'remaining features: {remaining_features_amount}')
         # print(f"{len(features)}, model: {model_name}")
         # print(f"len: {len(features)}, X: {X_val}")
         # predict on validation and get score
@@ -193,21 +183,57 @@ def get_model_results(model_name: str, dataset_name: str, X_train, y_train, X_va
             # remove features
             features_to_remove = random.sample(features, k=features_to_remove_amount)
             # print(f'features_to_remove: {features_to_remove}')
-            X_val_missing.loc[:, features_to_remove] = 0.0
             # print(f'val missing shape: {X_val_missing.shape}')
 
-            # get predictions, if DAE model, need to get also the mask vector of missing features
-            if not ModelFactory.is_masked_model(model_name):
-                y_val_predicted = model.predict(X_val_missing)
-                y_val_probs = model.predict_proba(X_val_missing)
-            else:
+            # TODO: support masked my_models, graph masked, and basic my_models that support None as mask
+            """
+            pipeline:
+            if model is masked model:
+            get prediction using X_val_missing and mask vector
+            if model supports nones:
+            set nones in X_val_missing and get predictions
+            if model supports unmasked columns
+            """
+
+            if ModelFactory.is_masked_model(model_name):
+                X_val_missing.loc[:, features_to_remove] = 0.0
                 # remaining features is 1 if the feature is not removed, 0 otherwise
                 remaining_features = [1 if feature not in features_to_remove else 0 for feature in features]
 
-                # print("-" * 20)
                 mask_vector = np.array(remaining_features)
                 y_val_predicted = model.predict(X_val_missing.values, mask_vector)
                 y_val_probs = model.predict_proba(X_val_missing.values, mask_vector)
+            elif ModelFactory.is_model_supports_nans(model_name):
+                # set missing features to Nan
+                X_val_missing.loc[:, features_to_remove] = np.nan
+                y_val_predicted = model.predict(X_val_missing)
+                y_val_probs = model.predict_proba(X_val_missing)
+
+
+            elif ModelFactory.is_model_supports_unmasked_columns(model_name):
+                unmasked_columns = []
+                for i, feature in enumerate(features):
+                    if feature not in features_to_remove:
+                        unmasked_columns.append(i)
+                y_val_predicted = model.predict(X_val_missing, unmasked_columns)
+                y_val_probs = model.predict_proba(X_val_missing, unmasked_columns)
+            else:
+                X_val_missing.loc[:, features_to_remove] = 0.0
+                y_val_predicted = model.predict(X_val_missing)
+                y_val_probs = model.predict_proba(X_val_missing)
+
+            # # get predictions, if DAE model, need to get also the mask vector of missing features
+            # if not ModelFactory.is_masked_model(model_name):
+            #     y_val_predicted = model.predict(X_val_missing)
+            #     y_val_probs = model.predict_proba(X_val_missing)
+            # else:
+            #     # remaining features is 1 if the feature is not removed, 0 otherwise
+            #     remaining_features = [1 if feature not in features_to_remove else 0 for feature in features]
+            #
+            #     # print("-" * 20)
+            #     mask_vector = np.array(remaining_features)
+            #     y_val_predicted = model.predict(X_val_missing.values, mask_vector)
+            #     y_val_probs = model.predict_proba(X_val_missing.values, mask_vector)
 
             if not is_multy_class:
                 auc = roc_auc_score(y_val, y_val_probs[:, 1])
@@ -232,8 +258,22 @@ if __name__ == "__main__":
         config = json.load(f)
     # get datasets from config
     datasets: list = config['datasets']
+  #  datasets_names: list = [
+  #      "Tokyo",
+  #      "Connectionist Bench",
+  #      "Ionosphere",
+  #      "Pima Indians Diabetes Database",
+   #     "Heart Disease",
+ #       "Statlog (German Credit Data)",
+ #   ]
+    # get only the datasets that are in the list
+# datasets = [dataset for dataset in datasets if dataset['name'] in datasets_names]
     # run experiment for each dataset
     for dataset in tqdm(datasets):
+        if dataset['name'] not in ["MiniBooNE", "Higgs"]:
+            print(f'skipping {dataset["name"]}')
+            continue
+        print(f'current dataset: {dataset["name"]}')
         dataset_name_ = dataset['name']
         relative_path_ = dataset['relative_path']
         label_position_ = dataset['label_position']

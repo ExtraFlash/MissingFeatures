@@ -52,8 +52,6 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 # print(correct_predictions)
 
 
-
-
 # df = pd.DataFrame(
 #     {
 #         'a': [1, 2, 3],
@@ -114,12 +112,28 @@ import torch.nn as nn
 # print("\nOutput Tensor after applying nn.Sigmoid:")
 # print(output_tensor)
 
-def f():
-    return 0, 1
+import torch
+import os
 
-a = f()
-print(a)
-print(type(a))
+from my_models.dae_typing import DynamicTypeDAEModel
+from my_models.dae import DAE
+from my_models import ActivationFactory
 
+model_name = 'DAE_Dynamic_TYPE_LIGHTNING'
+dataset_name = 'Connectionist Bench'
 
+checkpoint_path = os.path.abspath(
+    os.path.join("..", "optimized_models", dataset_name, model_name, f"{model_name}.ckpt")
+)
 
+model = DynamicTypeDAEModel(input_size=10,
+                            latent_dim=50,
+                            types_list=[],
+                            encoder_units=(128, 64),
+                            decoder_units=(128, 64),
+                            activation_name=ActivationFactory.relu_NAME,
+                            dropout_rate=0.5,
+                            learning_rate=0.5)
+
+model.load_checkpoint(checkpoint_path)
+print(model.model.hparams)

@@ -1,0 +1,44 @@
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Current SDK version is 0.18.1
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Configure stats pid to 3596639
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Loading settings from /home/dsi/orshkuri/.config/wandb/settings
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Loading settings from /home/eng/orshkuri/projects/MissingFeatures/experiments/dae_cheks/check_overfit/wandb/settings
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Loading settings from environment variables: {}
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Applying setup settings: {'mode': None, '_disable_service': None}
+2024-11-07 11:08:07,352 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Inferring run settings from compute environment: {'program_relpath': 'run.py', 'program_abspath': '/home/eng/orshkuri/projects/MissingFeatures/experiments/dae_cheks/check_overfit/run.py', 'program': '/home/eng/orshkuri/projects/MissingFeatures/experiments/dae_cheks/check_overfit/run.py'}
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_setup.py:_flush():77] Applying login settings: {}
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:_log_setup():532] Logging user logs to ./wandb/run-20241107_110807-llg89nrk/logs/debug.log
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:_log_setup():533] Logging internal logs to ./wandb/run-20241107_110807-llg89nrk/logs/debug-internal.log
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:init():616] calling init triggers
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:init():623] wandb.init called with sweep_config: {}
+config: {}
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:init():666] starting backend
+2024-11-07 11:08:07,353 INFO    MainThread:3596639 [wandb_init.py:init():670] setting up manager
+2024-11-07 11:08:07,354 INFO    MainThread:3596639 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2024-11-07 11:08:07,354 INFO    MainThread:3596639 [wandb_init.py:init():678] backend started and connected
+2024-11-07 11:08:07,357 INFO    MainThread:3596639 [wandb_init.py:init():773] updated telemetry
+2024-11-07 11:08:07,358 INFO    MainThread:3596639 [wandb_init.py:init():806] communicating run to backend with 90.0 second timeout
+2024-11-07 11:08:07,998 INFO    MainThread:3596639 [wandb_init.py:init():857] starting run threads in backend
+2024-11-07 11:08:08,156 INFO    MainThread:3596639 [wandb_run.py:_console_start():2459] atexit reg
+2024-11-07 11:08:08,156 INFO    MainThread:3596639 [wandb_run.py:_redirect():2307] redirect: wrap_raw
+2024-11-07 11:08:08,156 INFO    MainThread:3596639 [wandb_run.py:_redirect():2372] Wrapping output streams.
+2024-11-07 11:08:08,157 INFO    MainThread:3596639 [wandb_run.py:_redirect():2397] Redirects installed.
+2024-11-07 11:08:08,158 INFO    MainThread:3596639 [wandb_init.py:init():900] run started, returning control to user process
+2024-11-07 11:08:08,159 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:08:08,159 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:08:08,876 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 60, 'latent_dim': 40, 'encoder_units': [86, 66], 'decoder_units': [101, 131], 'dropout_rate': 0.11671617185262659, 'learning_rate': 0.00036168232516739496, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:08:28,439 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:08:28,439 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:08:28,505 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 60, 'latent_dim': 40, 'encoder_units': [232, 124], 'decoder_units': [228, 247], 'dropout_rate': 0.09344905467545894, 'learning_rate': 0.0005834785350336242, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:08:38,810 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:08:38,810 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:08:38,881 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 34, 'latent_dim': 45, 'encoder_units': [220, 165], 'decoder_units': [203, 244], 'dropout_rate': 0.20012442635211858, 'learning_rate': 0.00029257513060247794, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:08:49,556 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:08:49,556 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:08:49,619 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 24, 'latent_dim': 19, 'encoder_units': [251, 219], 'decoder_units': [96, 127], 'dropout_rate': 0.24311017473450836, 'learning_rate': 0.000498567259080789, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:09:03,253 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:09:03,253 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:09:03,503 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 19, 'latent_dim': 45, 'encoder_units': [201, 140], 'decoder_units': [150, 164], 'dropout_rate': 0.4200747274921986, 'learning_rate': 0.0004568215752476765, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:09:26,067 INFO    MainThread:3596639 [wandb_config.py:__setitem__():154] config set batch_size = 64 - <bound method Run._config_callback of <wandb.sdk.wandb_run.Run object at 0x7f18ef0c4220>>
+2024-11-07 11:09:26,067 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb batch_size 64 None
+2024-11-07 11:09:26,132 INFO    MainThread:3596639 [wandb_run.py:_config_callback():1388] config_cb None None {'input_size': 53, 'latent_dim': 26, 'encoder_units': [69, 65], 'decoder_units': [137, 174], 'dropout_rate': 0.41898389974918315, 'learning_rate': 0.00043400757839938403, 'activation_name': 'LeakyReLU'}
+2024-11-07 11:09:55,659 WARNING MsgRouterThr:3596639 [router.py:message_loop():77] message_loop has been closed

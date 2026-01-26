@@ -11,7 +11,7 @@ import optuna
 from functools import partial
 import pickle
 
-from models import ModelFactory
+from my_models import ModelFactory
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -24,20 +24,16 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 from sklearn.model_selection import learning_curve
 
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 
+from utils import utils
 
-def objective(trial, X_train, y_train):
+
+def objective(trial, X_train, y_train, X_val, y_val):
     # Determine the columns for preprocessing
-    non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
-    categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
-
-    # Create a ColumnTransformer for preprocessing
-    scaler_pipeline = ColumnTransformer([
-        ('scaler', StandardScaler(), non_categorical_columns)
-    ], remainder='passthrough')
+    scaler_pipeline = pipeline_for_cross_validation(X_train)
 
     # Hyperparameters to optimize
     n_estimators = trial.suggest_int('n_estimators', 50, 1000)
@@ -67,16 +63,17 @@ def objective(trial, X_train, y_train):
 def optimize_model_for_dataset(dataset_name: str):
     # Load data
     data_path = "../data"
-    train = pd.read_csv(f"{data_path}/{dataset_name}/train/data.csv")
+    path = f"{data_path}/{dataset_name}"
+    train = pd.read_csv(f"{path}/train/data.csv")
 
-    X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
+    X_train, y_train, X_val, y_val = utils.preprocess_split(train)
 
     # Create a new function with X_train and y_train pre-filled
-    objective_with_data = partial(objective, X_train=X_train, y_train=y_train)
+    objective_with_data = partial(objective, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val)
     #
-    # # Run the optimization
+    # Run the optimization
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective_with_data, n_trials=1000)
+    study.optimize(objective_with_data, n_trials=100)
 
     _best_params = study.best_params
 
@@ -92,7 +89,8 @@ def optimize_model_for_dataset(dataset_name: str):
 
     # Save the study
     fig_slice = optuna.visualization.plot_slice(study,
-                                    params=['n_estimators', 'max_depth', 'min_samples_split', 'min_samples_leaf'])
+                                                params=['n_estimators', 'max_depth', 'min_samples_split',
+                                                        'min_samples_leaf'])
     fig_slice.write_image(f"{dataset_name}/{model_name}/slice_plot.png")
 
     fig_param_importances = optuna.visualization.plot_param_importances(study)
@@ -101,27 +99,40 @@ def optimize_model_for_dataset(dataset_name: str):
     # Run the model with the best hyperparameters
     model = RandomForestClassifier(**_best_params)
 
-    non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
-    categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
-    target_column = [train.columns[-1]]
-    original_columns = train.columns
-
-    scaler_pipeline = ColumnTransformer([
-        ('scaler', StandardScaler(), non_categorical_columns)
-    ], remainder='passthrough')
-
-    train = pd.DataFrame(scaler_pipeline.fit_transform(train),
-                         columns=non_categorical_columns + categorical_columns + target_column)
-    # keep the order of columns
-    train = train[original_columns]
-
-    X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
+    # non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
+    # categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
+    # target_column = [train.columns[-1]]
+    # original_columns = train.columns
+    #
+    # scaler_pipeline = pipeline_for_cross_validation(X_train)
+    #
+    # train = pd.DataFrame(scaler_pipeline.fit_transform(train),
+    #                      columns=non_categorical_columns + categorical_columns + target_column)
+    # # keep the order of columns
+    # train = train[original_columns]
+    #
+    # X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
 
     model.fit(X_train, y_train)
 
     # Save the model
     with open(f"{dataset_name}/{model_name}/model.pkl", 'wb') as f:
         pickle.dump(model, f)
+
+
+def pipeline_for_cross_validation(X_train):
+    non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
+    categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
+
+    real_positive_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and (X_train[col] >= 0).all()]
+    real_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and not (X_train[col] >= 0).all()]
+
+    scaler_pipeline = ColumnTransformer([
+        ('minmax_scaler', MinMaxScaler(), real_positive_columns),
+        ('standard_scaler', StandardScaler(), real_columns)
+    ], remainder='passthrough')
+
+    return scaler_pipeline
 
 
 if __name__ == "__main__":

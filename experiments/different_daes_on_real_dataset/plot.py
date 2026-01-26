@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from plots_utils import utils
-from models import ModelFactory
+from my_models import ModelFactory
 
 
 def make_plot(dataset_name: str, metric: str, metric_title: str):

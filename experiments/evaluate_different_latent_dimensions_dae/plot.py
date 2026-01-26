@@ -2,7 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import json
 import numpy as np
-from models import ModelFactory
+from my_models import ModelFactory
 from plots_utils import utils
 
 

@@ -6,7 +6,7 @@ import numpy as np
 import random
 from tqdm import tqdm
 
-from models import ModelFactory
+from my_models import ModelFactory
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier

@@ -6,7 +6,7 @@ import numpy as np
 import random
 from tqdm import tqdm
 
-from models import ModelFactory
+from my_models import ModelFactory
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -70,7 +70,7 @@ def save_results_for_dataset():
             'auc': {},
             'accuracy': {}
         }
-        # get all models names
+        # get all my_models names
         models_names = ModelFactory.MODELS
         # for each model get list of scores
         for model_name in models_names:

@@ -5,6 +5,7 @@ import pathlib
 import json
 import numpy as np
 import pandas as pd
+from scipy.io import arff
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -17,13 +18,12 @@ from sklearn.preprocessing import OneHotEncoder, FunctionTransformer
 
 # Example mapping function to convert binary categories to 0 and 1
 
-
 def binary_mapping(X):
     return np.where(X == X.min(), 0, 1)
 
 
-def process_data(dataset_name: str, relative_path: str, label_position: int, has_header: bool, has_id: str,
-                 positive: str, negative: str, sep):
+def process_data(dataset_name: str, relative_path: str, label_position: str, has_header: bool, has_id: str,
+                 positive: str, negative: str, sep, file_type):
     # Load data
     datasets_path = "../datasets"
 
@@ -31,10 +31,19 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
     delimiter_pattern = '\s+' if sep is not None else ','
 
     path = datasets_path + '/' + relative_path
-    if not has_header:
-        data = pd.read_csv(path, header=None, sep=delimiter_pattern)
+    print(path)
+
+    if file_type == 'arff':
+        data, _ = arff.loadarff(path)
+        data = pd.DataFrame(data)
+        # Decode all byte string columns (categorical attributes)
+        for col in data.select_dtypes([object]):  # Only process object columns (categorical/nominal)
+            data[col] = data[col].str.decode('utf-8')
     else:
-        data = pd.read_csv(path, sep=delimiter_pattern)
+        if not has_header:
+            data = pd.read_csv(path, header=None, sep=delimiter_pattern)
+        else:
+            data = pd.read_csv(path, sep=delimiter_pattern)
 
     # Remove id column
     if has_id:
@@ -43,6 +52,14 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
     # shuffle
     data = shuffle(data, random_state=42)
     data.reset_index(drop=True, inplace=True)
+
+    # if we have less than 4 features or less than 200 samples, don't use the dataset
+    if (data.shape[1] - 1) < 4 or data.shape[0] < 200:
+        return
+
+    # if we have more than 10k rows, take only 10k
+    if data.shape[0] > 10000:
+        data = data.iloc[:10000]
 
     # Rearrange columns
     if label_position == "start":
@@ -65,6 +82,12 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
     # One hot encode categorical columns, and transform binary columns to 0 and 1
     categorical_columns = [col for col in data.columns[:-1] if 2 < data[col].nunique() < 20]
     binary_columns = [col for col in data.columns[:-1] if data[col].nunique() == 2]
+
+    for col in binary_columns:
+        unique_values = data[col].unique()
+        if len(unique_values) == 2:
+            mapping = {unique_values[0]: 0, unique_values[1]: 1}
+            data[col].replace(mapping, inplace=True)
 
     categorical_amounts = [data[col].nunique() for col in data.columns[:-1] if 2 < data[col].nunique() < 20]
 
@@ -93,16 +116,26 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
     # notice order of columns change (categorical columns first)
     data = pd.DataFrame(one_hot_pipeline.fit_transform(data))
 
+    # If there is a feature with only one unique value, drop it
+    single_value_columns = [col for col in data.columns[:-1] if data[col].nunique() == 1]
+    # Remove single-value columns
+    if single_value_columns:
+        print(f"Removing single-value columns: {single_value_columns}")
+        data.drop(columns=single_value_columns, inplace=True)
+
     # real-positive features
+    print('---------------')
+    print(f'dataset_name: {dataset_name}')
     for i, col in enumerate(data.columns[:-1]):
-        if data[col].nunique() > 2 and (data[col] > 0).all():
+        if data[col].nunique() > 2 and (data[col] >= 0).all():
             types_list.append(('real_positive', i, 0))
+            print(f"real_positive: {col}")
     # for i, col in enumerate(data.columns[idx:-1]):
     #     types_list.append(('real_positive', i + idx, 0))
 
 
     # Split data into train, validation and test sets
-    train, test = train_test_split(data, test_size=0.2, random_state=42)
+    # train, test = train_test_split(data, test_size=0.2, random_state=42)
     # train, val = train_test_split(train, test_size=0.2, random_state=42)
 
     # Standardize data
@@ -117,8 +150,8 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
         os.makedirs(f"{data_path}/{dataset_name}/train")
     # if not os.path.exists(f"{data_path}/{dataset_name}/val"):
     #     os.makedirs(f"{data_path}/{dataset_name}/val")
-    if not os.path.exists(f"{data_path}/{dataset_name}/test"):
-        os.makedirs(f"{data_path}/{dataset_name}/test")
+    # if not os.path.exists(f"{data_path}/{dataset_name}/test"):
+    #     os.makedirs(f"{data_path}/{dataset_name}/test")
 
     # update config with the types list
     config_path = f"../datasets/config.json"
@@ -134,9 +167,9 @@ def process_data(dataset_name: str, relative_path: str, label_position: int, has
         json.dump(config, f, indent=4)
 
     # Save data
-    train.to_csv(f"{data_path}/{dataset_name}/train/data.csv", index=False)
+    data.to_csv(f"{data_path}/{dataset_name}/train/data.csv", index=False)
     # val.to_csv(f"{data_path}/{dataset_name}/val/data.csv", index=False)
-    test.to_csv(f"{data_path}/{dataset_name}/test/data.csv", index=False)
+    # test.to_csv(f"{data_path}/{dataset_name}/test/data.csv", index=False)
 
 
 def load_datasets_from_config(config_path):
@@ -148,6 +181,9 @@ def load_datasets_from_config(config_path):
     # process each dataset
     for dataset in datasets:
 
+        if dataset['name'] != 'climate-model-simulation-crashes':
+            continue
+
         dataset_name = dataset['name']
         relative_path = dataset['relative_path']
         label_position = dataset['label_position']
@@ -156,9 +192,8 @@ def load_datasets_from_config(config_path):
         positive = dataset.get('positive', None)
         negative = dataset.get('negative', None)
         sep = dataset.get('sep', None)
-        if dataset_name != "Heart Disease":
-            continue
-        process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative, sep)
+        file_type = dataset.get('file_type', None)
+        process_data(dataset_name, relative_path, label_position, has_header, has_id, positive, negative, sep, file_type)
 
 
 if __name__ == "__main__":

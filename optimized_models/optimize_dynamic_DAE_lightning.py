@@ -12,7 +12,7 @@ from functools import partial
 import pickle
 import torch.nn as nn
 
-from models import ModelFactory
+from my_models import ModelFactory
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import AdaBoostClassifier
@@ -29,7 +29,9 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder
 
-from models import ActivationFactory
+from my_models import ActivationFactory
+
+from utils import utils
 
 BATCH_SIZE = 64
 
@@ -44,32 +46,6 @@ dims = {
 
 
 def objective(trial, X_train, y_train, X_val, y_val, dataset_name):
-    # Determine the columns for preprocessing
-    # non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
-    # categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
-    # original_columns = X_train.columns
-
-    # TODO: perform scaling only on non one-hot encoded features
-    non_categorical_columns = [col for col in X_train.columns if X_train[col].nunique() > 2]
-    categorical_columns = [col for col in X_train.columns if col not in non_categorical_columns]
-
-    real_positive_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and (X_train[col] > 0).all()]
-    real_columns = [col for col in X_train.columns if X_train[col].nunique() > 2 and not (X_train[col] > 0).all()]
-
-    original_columns = X_train.columns
-
-    scaler_pipeline = ColumnTransformer([
-        ('minmax_scaler', MinMaxScaler(), real_positive_columns),
-        ('standard_scaler', StandardScaler(), real_columns)
-    ], remainder='passthrough')
-
-    X_train = pd.DataFrame(scaler_pipeline.fit_transform(X_train),
-                           columns=non_categorical_columns + categorical_columns)
-    # keep the order of columns
-    X_train = X_train[original_columns]
-
-    X_val = pd.DataFrame(scaler_pipeline.transform(X_val),
-                         columns=non_categorical_columns + categorical_columns)
 
     # Hyperparameters to optimize
     latent_dim = trial.suggest_int('latent_dim', 10, 50)
@@ -98,24 +74,26 @@ def objective(trial, X_train, y_train, X_val, y_val, dataset_name):
     #                                             [ActivationFactory.relu_NAME, ActivationFactory.leaky_relu_NAME,
     #                                              ActivationFactory.tanh_NAME])
     activation_name = ActivationFactory.leaky_relu_NAME
-    dropout_rate = trial.suggest_float('dropout_rate', 0.0, 0.5)
+    dropout_rate = trial.suggest_float('dropout_rate', 0.05, 0.5)
     learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-2, log=True)
-    batch_size = BATCH_SIZE
-    n_epochs = trial.suggest_int('n_epochs', 200, 1500)
+    # batch_size = BATCH_SIZE
+    # n_epochs = trial.suggest_int('n_epochs', 200, 1500)
 
     dae, _ = ModelFactory.get_model(
         model_name=model_name,
         input_size=X_train.shape[1],
+        dataset_name=dataset_name,
         types_list=types_list,
         latent_dim=latent_dim,
         encoder_units=encoder_units,
         decoder_units=decoder_units,
         activation_name=activation_name,
         dropout_rate=dropout_rate,
-        learning_rate=learning_rate
+        learning_rate=learning_rate,
+        use_wandb=False
     )
 
-    dae.fit(X_train, y_train, X_val, y_val)
+    dae.fit(X_train, y_train, X_val, y_val, show_progress=False)
 
     # y_pred = dae.predict(X_val)
     # accuracy = (y_pred.flatten() == y_val).mean()
@@ -130,16 +108,15 @@ def optimize_model_for_dataset(dataset_name: str):
     # Load data
     data_path = "../data"
     train = pd.read_csv(f"{data_path}/{dataset_name}/train/data.csv")
-    X, y = train.iloc[:, :-1], train.iloc[:, -1]
 
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    X_train, y_train, X_val, y_val = utils.preprocess_split(train)
 
     # Create a new function with X_train and y_train pre-filled
     objective_with_data = partial(objective, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, dataset_name=dataset_name)
 
     # Run the optimization
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective_with_data, n_trials=20)
+    study.optimize(objective_with_data, n_trials=100)
 
     _best_params = study.best_params
 
@@ -159,8 +136,7 @@ def optimize_model_for_dataset(dataset_name: str):
                                                 params=['latent_dim',
                                                         'encoder_units_0', 'encoder_units_1',
                                                         'decoder_units_0', 'decoder_units_1',
-                                                        'dropout_rate', 'learning_rate',
-                                                        'n_epochs'])
+                                                        'dropout_rate', 'learning_rate'])
     fig_slice.write_image(f"{dataset_name}/{model_name}/slice_plot.png")
 
     fig_param_importances = optuna.visualization.plot_param_importances(study)
@@ -174,6 +150,7 @@ def optimize_model_for_dataset(dataset_name: str):
         model_name=model_name,
         input_size=X_train.shape[1],
         types_list=types_list,
+        dataset_name=dataset_name,
         latent_dim=_best_params['latent_dim'],
         encoder_units=best_encoder_units,
         decoder_units=best_decoder_units,
@@ -182,23 +159,23 @@ def optimize_model_for_dataset(dataset_name: str):
         learning_rate=_best_params['learning_rate'],
     )
 
-    non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
-    categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
-    target_column = [train.columns[-1]]
-    original_columns = train.columns
-    scaler_pipeline = ColumnTransformer([
-        ('scaler', StandardScaler(), non_categorical_columns)
-    ], remainder='passthrough')
+    # non_categorical_columns = [col for col in train.columns[:-1] if train[col].nunique() > 2]
+    # categorical_columns = [col for col in train.columns[:-1] if col not in non_categorical_columns]
+    # target_column = [train.columns[-1]]
+    # original_columns = train.columns
+    # scaler_pipeline = ColumnTransformer([
+    #     ('scaler', StandardScaler(), non_categorical_columns)
+    # ], remainder='passthrough')
 
-    train = pd.DataFrame(scaler_pipeline.fit_transform(train),
-                         columns=non_categorical_columns + categorical_columns + target_column)
-    # keep the order of columns
-    train = train[original_columns]
-
-    X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
-
-    n_epochs = _best_params['n_epochs']
-    batch_size = BATCH_SIZE
+    # train = pd.DataFrame(scaler_pipeline.fit_transform(train),
+    #                      columns=non_categorical_columns + categorical_columns + target_column)
+    # # keep the order of columns
+    # train = train[original_columns]
+    #
+    # X_train, y_train = train.iloc[:, :-1], train.iloc[:, -1]
+    #
+    # # n_epochs = _best_params['n_epochs']
+    # batch_size = BATCH_SIZE
 
     dae.fit(X_train, y_train, X_val, y_val)
 
