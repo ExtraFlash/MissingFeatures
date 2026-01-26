@@ -2,7 +2,6 @@
 **/logs/
 **/wandb/
 **/datasets/
-**/data/
 **/venv/
 **/tests/
 **/tamar/
